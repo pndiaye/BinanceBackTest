@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <getopt.h>
+#include <json/json.h>
 
 #define ORDER_FEE 0.001
 
