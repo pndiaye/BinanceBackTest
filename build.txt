@@ -1,1 +1,4 @@
 g++ -std=c++11 main.cpp -Iext/jsoncpp-1.7.0/include -Lext/jsoncpp-1.7.0/build/src/lib_json -ljsoncpp -o test
+
+call:
+test.exe --file=ETH_USDT -t0.003

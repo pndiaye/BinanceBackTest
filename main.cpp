@@ -3,6 +3,7 @@
 #include <stdlib.h>    /* for exit */
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <getopt.h>
 #include <json/json.h>
 
@@ -12,7 +13,7 @@ int
 main(int argc, char **argv)
 {
 	
-    int c;
+    int c, realisation;
 	double target;
 	std::string file;
 
@@ -47,7 +48,7 @@ main(int argc, char **argv)
             break;
 		case 't':
             std::cout<<"option t with value '"<<optarg<<"' \n";
-			target = atof(optarg);
+			target = std::stod(optarg);
             break;
 /*
        case 'o':
@@ -67,24 +68,52 @@ main(int argc, char **argv)
     }
 
    if (optind < argc) {
-        printf("non-option ARGV-elements: ");
-        while (optind < argc)
-            printf("%s ", argv[optind++]);
-        printf("\n");
-    }
-	
-	std::string hourly_file = file+"_hourly.json";
-	std::string minutes_file = file+"_minutes.json";
-	
-	
-	
-	if(false)
-	{
-		std::ifstream hourlyStream(hourly_file, std::ifstream::binary);
-		//config_doc >> root;
+		printf("non-option ARGV-elements: ");
+		while (optind < argc)
+			printf("%s ", argv[optind++]);
+		printf("\n");
 	}
 	
+	std::string hourly_file = file+"_hourly.json";
+	std::string minutes_file = file+"_minute.json";
 	
+	
+	
+
+	Json::Value root;
+	std::ifstream hourlyStream(hourly_file, std::ifstream::binary);
+	hourlyStream >> root;
+	//std::cout<<root["Data"]<<std::endl;
+	int dataSize = root["Data"].size();
+	double targetSellValue, targetBuyValue, nextHigh,nextLow;
+	bool lock = false;
+
+	for  ( int i = 0 ; i < dataSize -1  ; i++ ) {
+		
+		if(!lock)
+		{
+			targetBuyValue = std::stod(root["Data"][i]["low"].asString());
+			//targetSellValue += 0,0071 * targetSellValue;
+			targetSellValue = ((target+1.001)/0.999) * targetBuyValue;
+			
+		}
+		nextHigh = std::stod(root["Data"][i+1]["high"].asString());
+		nextLow = std::stod(root["Data"][i+1]["low"].asString());
+		if(targetSellValue < nextHigh)//&& targetBuyValue >= nextLow
+		{
+			realisation++;
+			lock = false;
+			std::cout<<"target: "<<targetSellValue<<std::endl;
+		}
+		else
+		{
+			lock = true;
+		}
+		
+		
+	}
+	
+	std::cout<<"realised: "<<realisation<<"/"<< dataSize-1<<std::endl;
 
    exit(EXIT_SUCCESS);
 }
