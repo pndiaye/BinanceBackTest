@@ -73,14 +73,14 @@ main(int argc, char **argv)
         printf("\n");
     }
 	
-	std::string hourly_file = file+"_30minutes.json";
-	std::string minutes_file = file+"_5minutes.json";
+	std::string hourly_file = file+"_hourly.json";
+	std::string minutes_file = file+"_minutes.json";
 	
 	
 	
 	if(false)
 	{
-		std::ifstream 30MinutesStream(hourly_file, std::ifstream::binary);
+		std::ifstream hourlyStream(hourly_file, std::ifstream::binary);
 		//config_doc >> root;
 	}
 	
