@@ -14,7 +14,7 @@ int
 main(int argc, char **argv)
 {
 	
-    int c, realisation;
+    int c, realisation,skips=0;
 	double target;
 	std::string file;
 
@@ -104,6 +104,7 @@ main(int argc, char **argv)
 			{
 				std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
 				std::cout<<"Skipped bar at the time: "<< std::asctime(std::localtime(&secsSinceEpoch))<<" Target: "<<targetSellValue<<std::endl;
+				skips++;
 				continue;
 			}
 			targetBuyValue = prevClose;
@@ -127,7 +128,7 @@ main(int argc, char **argv)
 		{	
 			std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
 			std::cout<<"At the time: "<< std::asctime(std::localtime(&secsSinceEpoch));
-			std::cout<<"target buy: "<<targetBuyValue<<" and target sell: "<<targetSellValue<<"not met"<<std::endl;
+			std::cout<<"target buy: "<<targetBuyValue<<" and target sell: "<<targetSellValue<<" not met"<<std::endl;
 			std::cout<<root["Data"][i]<<std::endl;
 			lock = !lock;
 		}
@@ -135,7 +136,7 @@ main(int argc, char **argv)
 		
 	}
 	
-	std::cout<<"realised: "<<realisation<<"/"<< dataSize-1<<std::endl;
+	std::cout<<"realised: "<<realisation<<"/"<< dataSize-1<<" skipped:"<<skips<<std::endl;
 
    exit(EXIT_SUCCESS);
 }
