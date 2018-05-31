@@ -100,7 +100,13 @@ main(int argc, char **argv)
 			prevOpen = std::stod(root["Data"][i-1]["open"].asString());
 			prevClose = std::stod(root["Data"][i-1]["close"].asString());
 			
-			targetBuyValue = prevLow;
+			if((prevHigh - prevLow)/prevOpen > 0.10)
+			{
+				std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
+				std::cout<<"Skipped bar at the time: "<< std::asctime(std::localtime(&secsSinceEpoch))<<" Target: "<<targetSellValue<<std::endl;
+				continue;
+			}
+			targetBuyValue = prevClose;
 			
 			
 			
@@ -110,7 +116,7 @@ main(int argc, char **argv)
 		//check if the buy and sell would have been realised in this hour
 		high = std::stod(root["Data"][i]["high"].asString());
 		low = std::stod(root["Data"][i]["low"].asString());
-		if(targetSellValue < high )//&& targetBuyValue >= low
+		if(targetSellValue < high && targetBuyValue >= low)//&& targetBuyValue >= low
 		{
 			realisation++;
 			lock = false;
@@ -121,7 +127,7 @@ main(int argc, char **argv)
 		{	
 			std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
 			std::cout<<"At the time: "<< std::asctime(std::localtime(&secsSinceEpoch));
-			std::cout<<"target: "<<targetSellValue<<"not met"<<std::endl;
+			std::cout<<"target buy: "<<targetBuyValue<<" and target sell: "<<targetSellValue<<"not met"<<std::endl;
 			std::cout<<root["Data"][i]<<std::endl;
 			lock = true;
 		}
