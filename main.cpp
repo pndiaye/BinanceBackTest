@@ -129,7 +129,7 @@ main(int argc, char **argv)
 			std::cout<<"At the time: "<< std::asctime(std::localtime(&secsSinceEpoch));
 			std::cout<<"target buy: "<<targetBuyValue<<" and target sell: "<<targetSellValue<<"not met"<<std::endl;
 			std::cout<<root["Data"][i]<<std::endl;
-			lock = true;
+			lock = !lock;
 		}
 		
 		
