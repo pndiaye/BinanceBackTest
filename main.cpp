@@ -92,7 +92,7 @@ main(int argc, char **argv)
 	for  ( int i = 1 ; i < dataSize  ; i++ ) {
 		
 		//estimate target buying and selling values
-		if(!lock)
+		if(true)
 		{
 			
 			prevHigh = std::stod(root["Data"][i-1]["high"].asString());
@@ -107,31 +107,41 @@ main(int argc, char **argv)
 				skips++;
 				continue;
 			}
-			targetBuyValue = prevClose;
+			targetBuyValue = prevClose - (0.00365 * prevClose);// buying low to avoid getting trapped
 			
 			
 			
-			targetSellValue = ((target+1.001)/0.999) * targetBuyValue;
+			targetSellValue = ((target+1.001)/0.999) * targetBuyValue;//include fees
 		}
 		
 		//check if the buy and sell would have been realised in this hour
 		high = std::stod(root["Data"][i]["high"].asString());
 		low = std::stod(root["Data"][i]["low"].asString());
-		if(targetSellValue < high && targetBuyValue >= low)//&& targetBuyValue >= low
+		if(targetSellValue < high && targetBuyValue >= low)
 		{
 			realisation++;
 			lock = false;
 			std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
 			std::cout<<"At the time: "<< std::asctime(std::localtime(&secsSinceEpoch))<<" Target: "<<targetSellValue<<std::endl;
 		}
-		else
+		else 
 		{	
 			std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
 			std::cout<<"At the time: "<< std::asctime(std::localtime(&secsSinceEpoch));
-			std::cout<<"target buy: "<<targetBuyValue<<" and target sell: "<<targetSellValue<<" not met"<<std::endl;
-			std::cout<<root["Data"][i]<<std::endl;
-			lock = !lock;
+			if(targetBuyValue < low)
+			{
+				std::cout<<"target buy: "<<targetBuyValue<<" not met"<<std::endl;
+				std::cout<<root["Data"][i]<<std::endl;
+				skips++;//we didn't buy anyway, no loss here
+			}
+			else
+			{
+				std::cout<<" target sell: "<<targetSellValue<<" not met"<<std::endl;
+				std::cout<<root["Data"][i]<<std::endl;
+				lock = !lock;
+			}
 		}
+		
 		
 		
 	}
