@@ -111,7 +111,7 @@ main(int argc, char **argv)
 			
 			
 			
-			targetSellValue = ((target+1.001)/0.999) * targetBuyValue;//include fees
+			targetSellValue = ((target+1.001)/0.999) * targetBuyValue;//include fees and target
 		}
 		
 		//check if the buy and sell would have been realised in this hour
@@ -142,8 +142,10 @@ main(int argc, char **argv)
 				std::cout<<root["Data"][i]<<std::endl;
 				
 				// we cancel the sell order 
-				balance -= balance * 0.001;
+				balance -= balance * 0.001;//we lost the buying order fees
 				//and sell at close
+				balance -= balance * 0.001;//we pay the fees of the new selling order
+				//we compute the loss (or gains if we still sold higher then we bought)
 				if(targetBuyValue > close)
 					balance -= balance * ((targetBuyValue - close)/targetBuyValue);
 				else
