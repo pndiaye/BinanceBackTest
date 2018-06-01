@@ -15,7 +15,7 @@ main(int argc, char **argv)
 {
 	
     int c, realisation,skips=0;
-	double target;
+	double target,balance = 200;
 	std::string file;
 
 	
@@ -86,7 +86,7 @@ main(int argc, char **argv)
 	hourlyStream >> root;
 	//std::cout<<root["Data"]<<std::endl;
 	int dataSize = root["Data"].size();
-	double targetSellValue, targetBuyValue, high,low, prevHigh, prevLow, prevOpen,prevClose;
+	double targetSellValue, targetBuyValue, high,low, close, prevHigh, prevLow, prevOpen,prevClose;
 	bool lock = false;
 
 	for  ( int i = 1 ; i < dataSize  ; i++ ) {
@@ -117,9 +117,11 @@ main(int argc, char **argv)
 		//check if the buy and sell would have been realised in this hour
 		high = std::stod(root["Data"][i]["high"].asString());
 		low = std::stod(root["Data"][i]["low"].asString());
+		close = std::stod(root["Data"][i]["close"].asString());
 		if(targetSellValue < high && targetBuyValue >= low)
 		{
 			realisation++;
+			balance += balance*target;
 			lock = false;
 			std::time_t secsSinceEpoch =  std::stol(root["Data"][i]["time"].asString());
 			std::cout<<"At the time: "<< std::asctime(std::localtime(&secsSinceEpoch))<<" Target: "<<targetSellValue<<std::endl;
@@ -138,6 +140,15 @@ main(int argc, char **argv)
 			{
 				std::cout<<" target sell: "<<targetSellValue<<" not met"<<std::endl;
 				std::cout<<root["Data"][i]<<std::endl;
+				
+				// we cancel the sell order 
+				balance -= balance * 0.001;
+				//and sell at close
+				if(targetBuyValue > close)
+					balance -= balance * ((targetBuyValue - close)/targetBuyValue);
+				else
+					balance += balance * ((close - targetBuyValue)/targetBuyValue);
+				
 				lock = !lock;
 			}
 		}
@@ -146,7 +157,7 @@ main(int argc, char **argv)
 		
 	}
 	
-	std::cout<<"realised: "<<realisation<<"/"<< dataSize-1<<" skipped:"<<skips<<std::endl;
+	std::cout<<"realised: "<<realisation<<"/"<< dataSize-1<<", skipped: "<<skips<<", end balance: "<<balance<<std::endl;
 
    exit(EXIT_SUCCESS);
 }
